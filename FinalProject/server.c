@@ -7,8 +7,16 @@
 #define PORT 8080
 #include "color.h"
 
+int DEMO = 0;
+
 int main(int argc, char const* argv[])
 {
+    if( argc == 2 ){
+        if( strcmp(argv[1],"demo") == 0 ){
+            DEMO = 1;
+        }
+    }
+
     int server_fd, new_socket;
     ssize_t val_read;
     struct sockaddr_in address;
@@ -61,6 +69,8 @@ int main(int argc, char const* argv[])
     const char ABS[] = "abs";
     const char MUL[] = "mul";
     const char KILL[] = "kill";
+    const char HELLO[] = "Hello";
+    const char INVALID[] = "Invalid command!";
 
     while ((val_read = read(new_socket, buffer, 1024 - 1)) > 0) {
         printf("%sClient:%s%s",BLUE,RESET,buffer);
@@ -125,12 +135,15 @@ int main(int argc, char const* argv[])
 
         match_ptr = strstr(buffer, KILL);
         if (match_ptr != NULL) {
-            printf(RED "Server is killed!\n" RESET);
+            printf(RED "\nServer is killed!\n" RESET);
             break;  
         }
 
         if ( invalid ) {
-            send(new_socket, "Invalid command!", strlen("Invalid command!"), 0);
+            if( DEMO ){
+                send(new_socket, HELLO, strlen(HELLO), 0);
+            }
+            send(new_socket, INVALID, strlen(INVALID), 0);
         }
 
         memset(buffer, 0, sizeof(buffer));

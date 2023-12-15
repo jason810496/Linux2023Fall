@@ -8,8 +8,43 @@
 #define PORT 8080
 #include "color.h"
 
+const char START_CONNECT[] = "START_CONNECT";
+const char START[] = "START";
+int DEMO = 0;
+
+void ServerConnectHint(){
+    if( DEMO ){
+        printf(GREEN "Connect to server!\n" RESET);
+    }
+}
+
+void ServerReceiveHint(char *buffer){
+    if( DEMO ){
+        printf("%sServer:%s%s\n",BLUE,RESET,buffer);
+        return;
+    }
+    char *match = strstr(buffer, START);
+    if (match != NULL) {
+        return;
+    }
+    printf("%s\n", buffer);
+}
+
+void UserInputHint(){
+    if( DEMO ){
+        printf( GREEN "Enter a message to send to the server: " RESET);
+    }
+}
+
+
 int main(int argc, char const* argv[])
 {
+    if( argc == 2 ){
+        if( strcmp(argv[1],"demo") == 0 ){
+            DEMO = 1;
+        }
+    }
+
 	int status, val_read, client_fd;
 	struct sockaddr_in serv_addr;
 	char* hello = "Hello from client";
@@ -39,25 +74,21 @@ int main(int argc, char const* argv[])
 		return -1;
 	}
 
-    const char START_CONNECT[] = "START_CONNECT";
-    const char START[] = "START";
-
 	send(client_fd, START_CONNECT, strlen(START_CONNECT), 0);
-	printf(GREEN "Connect to server!\n" RESET);
-	// val_read = read(client_fd, buffer, 1024 - 1); // subtract 1 for the null terminator at the end
+	
+    ServerConnectHint();
 
     while ((val_read = read(client_fd, buffer, 1024 - 1)) > 0) {
         buffer[val_read] = '\0';
-        printf("%sServer:%s%s\n",BLUE,RESET,buffer);
+        ServerReceiveHint(buffer);
 
-        printf( GREEN "Enter a message to send to the server: " RESET);
+        UserInputHint();
         char input[1024];
         // read until newline
         fgets(input, 1024, stdin);
         send(client_fd, input, strlen(input), 0);
         memset(buffer, 0, 1024);
     }
-	printf("%s\n", buffer);
 
 	// closing the connected socket
 	close(client_fd);
