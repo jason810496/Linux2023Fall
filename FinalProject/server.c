@@ -141,9 +141,11 @@ int main(int argc, char const* argv[])
 
         if ( invalid ) {
             if( DEMO ){
+                send(new_socket, INVALID, strlen(INVALID), 0);
+            }
+            else{
                 send(new_socket, HELLO, strlen(HELLO), 0);
             }
-            send(new_socket, INVALID, strlen(INVALID), 0);
         }
 
         memset(buffer, 0, sizeof(buffer));
