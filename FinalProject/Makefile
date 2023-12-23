@@ -9,6 +9,6 @@ clean:
 test:
 	./server &
 	./client < in > out
-	diff out ans
+	diff -s out ans
 
 .PHONY: clean client server all
